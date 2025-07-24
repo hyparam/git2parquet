@@ -1,8 +1,35 @@
 import { execSync } from 'node:child_process'
-import { resolve } from 'node:path'
+import { resolve, basename } from 'node:path'
 import { parquetWriteFile } from 'hyparquet-writer'
 
 const defaultFilename = 'gitlog.parquet'
+
+/**
+ * Return basic repository information for inclusion in Parquet metadata.
+ * @returns {{name:string, branch:string, head:string, remote:string}}
+ */
+function readRepoInfo() {
+  // throws if not inside a repository – caller already checks this
+  const root = execSync('git rev-parse --show-toplevel', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] }).trim()
+  const name = basename(root)
+
+  let branch = ''
+  try {
+    branch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] }).trim()
+  } catch {}
+
+  let head = ''
+  try {
+    head = execSync('git rev-parse HEAD', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] }).trim()
+  } catch {}
+
+  let remote = ''
+  try {
+    remote = execSync('git config --get remote.origin.url', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] }).trim()
+  } catch {}
+
+  return { name, branch, head, remote }
+}
 
 /**
  * Return commit objects including unified diff.
@@ -26,7 +53,8 @@ function readGitLogWithDiffs() {
       { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] }
     )
   } catch (error) {
-    throw new Error(`Failed to read git log: ${error.message}`)
+    const message = error instanceof Error ? error.message : String(error)
+    throw new Error(`Failed to read git log: ${message}`)
   }
 
   if (!raw.trim()) {
@@ -50,7 +78,8 @@ function readGitLogWithDiffs() {
         { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] }
       ).trim()
     } catch (error) {
-      console.warn(`Warning: Could not get diff for commit ${hash}: ${error.message}`)
+      const message = error instanceof Error ? error.message : String(error)
+      console.warn(`Warning: Could not get diff for commit ${hash}: ${message}`)
       diff = ''
     }
 
@@ -92,8 +121,9 @@ function toColumnData(rows) {
 
 /**
  * Write the repository history (including diffs) to a Parquet file.
+ * Adds repository metadata via `kvMetadata`.
  * @param {{filename?:string}} [opts]
- * @returns {Promise<{commitCount: number, filename: string}>}
+ * @returns {Promise<{commitCount:number, filename:string}>}
  */
 export async function writeGitLogParquet(opts = {}) {
   if (opts && typeof opts !== 'object') {
@@ -104,22 +134,35 @@ export async function writeGitLogParquet(opts = {}) {
     throw new Error('Filename must be a string')
   }
 
+  // collect data
   const rows = readGitLogWithDiffs()
   if (!rows.length) {
     throw new Error('No commits found in repository')
   }
+
+  // repo metadata
+  const repo = readRepoInfo()
+
+  // format metadata for hyparquet-writer
+  const kvMetadata = Object.entries({
+    repo_name: repo.name,
+    branch: repo.branch,
+    head: repo.head,
+    remote: repo.remote,
+  }).map(([key, value]) => ({ key, value }))
 
   const filename = resolve(opts.filename ?? defaultFilename)
 
   try {
     await parquetWriteFile({
       filename,
-      columnData: toColumnData(rows)
+      columnData: toColumnData(rows),
+      kvMetadata,
     })
   } catch (error) {
-    throw new Error(`Failed to write parquet file: ${error.message}`)
+    const message = error instanceof Error ? error.message : String(error)
+    throw new Error(`Failed to write parquet file: ${message}`)
   }
 
   return { commitCount: rows.length, filename }
 }
-

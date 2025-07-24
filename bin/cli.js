@@ -66,18 +66,17 @@ writeGitLogParquet(options).then(result => {
     : result.filename
   const filename = result.filename.split('/').pop()
 
-  console.log(`✓ Exported ${result.commitCount} commits to ${filename}.`)
-
   if (options.open) {
+    console.log(`✓ Exported ${result.commitCount} commits to ${filename}.`)
     console.log(`Opening ${filename} with hyperparam...`)
     try {
       execSync(`npx hyperparam ${localPath}`, { stdio: 'inherit' })
     } catch (error) {
       console.error(`Failed to open with hyperparam: ${error.message}`)
-      console.log(`\nView it manually with:\n  npx hyperparam ${localPath}\n`)
+      console.log(`View it manually with:\n\n  npx hyperparam ${localPath}\n`)
     }
   } else {
-    console.log(`View it with:\n  npx hyperparam ${localPath}\n`)
+    console.log(`✓ Exported ${result.commitCount} commits to ${filename}. View it with:\n\n  npx hyperparam ${localPath}\n`)
   }
 }).catch(err => {
   console.error(`Error: ${err.message}`)
