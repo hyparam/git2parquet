@@ -1,0 +1,41 @@
+{
+  "name": "git2parquet",
+  "version": "0.1.0",
+  "description": "A library to convert git commits to parquet format",
+  "author": "Hyperparam",
+  "homepage": "https://hyperparam.app",
+  "keywords": [
+    "ai",
+    "data",
+    "git",
+    "hyperparam",
+    "hyparquet",
+    "ml",
+    "parquet"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hyparam/git2parquet.git"
+  },
+  "files": [
+    "src"
+  ],
+  "type": "module",
+  "types": "src/index.d.ts",
+  "main": "src/index.js",
+  "sideEffects": false,
+  "scripts": {
+    "build:types": "tsc -p ./tsconfig.build.json",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
+  },
+  "dependencies": {
+    "hyparquet-writer": "0.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.1.0",
+    "eslint": "9.31.0",
+    "typescript": "5.8.3"
+  }
+}
