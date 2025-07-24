@@ -21,21 +21,21 @@
   "files": [
     "src"
   ],
+  "bin": {
+    "git2parquet": "src/index.js"
+  },
   "type": "module",
-  "types": "src/index.d.ts",
   "main": "src/index.js",
   "sideEffects": false,
   "scripts": {
-    "build:types": "tsc -p ./tsconfig.build.json",
-    "lint": "eslint",
-    "lint:fix": "eslint --fix"
+    "build:types": "tsc -p ./tsconfig.build.json"
   },
   "dependencies": {
-    "hyparquet-writer": "0.6.0"
+    "hyparquet-writer": "0.6.0",
+    "hyperparam": "0.3.1"
   },
   "devDependencies": {
     "@types/node": "24.1.0",
-    "eslint": "9.31.0",
     "typescript": "5.8.3"
   }
 }
