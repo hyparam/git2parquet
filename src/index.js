@@ -50,7 +50,11 @@ function readGitLogWithDiffs() {
   try {
     raw = execSync(
       `git log --pretty=format:${format} --date=iso-strict`,
-      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] }
+      {
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'inherit'],
+        maxBuffer: 50 * 1024 * 1024 // 50MB buffer to handle large repositories
+      }
     )
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
@@ -75,7 +79,11 @@ function readGitLogWithDiffs() {
       // `--pretty=format:` suppresses header lines so we get only the patch
       diff = execSync(
         `git show --patch --unified=0 --no-color --pretty=format: ${hash}`,
-        { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] }
+        {
+          encoding: 'utf8',
+          stdio: ['ignore', 'pipe', 'inherit'],
+          maxBuffer: 50 * 1024 * 1024 // 50MB buffer to handle large diffs
+        }
       ).trim()
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
