@@ -179,7 +179,7 @@ Examples:
 }
 
 /* CLI entry point */
-if (process.argv[1] && import.meta.url === new URL(process.argv[1], 'file://').href) {
+if (import.meta.url.startsWith('file:') && process.argv[1] && import.meta.url.includes(process.argv[1].split('/').pop())) {
   const options = parseCliArgs()
 
   writeGitLogParquet(options).then(result => {
