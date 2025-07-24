@@ -1,6 +1,6 @@
 {
   "name": "git2parquet",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "CLI tool to export git commits in parquet format",
   "author": "Hyperparam",
   "homepage": "https://hyperparam.app",
@@ -19,10 +19,11 @@
     "url": "git+https://github.com/hyparam/git2parquet.git"
   },
   "files": [
-    "src"
+    "src",
+    "bin"
   ],
   "bin": {
-    "git2parquet": "src/index.js"
+    "git2parquet": "bin/cli.js"
   },
   "type": "module",
   "main": "src/index.js",
