@@ -1,7 +1,7 @@
 {
   "name": "git2parquet",
-  "version": "0.1.0",
-  "description": "A library to convert git commits to parquet format",
+  "version": "0.1.1",
+  "description": "CLI tool to export git commits in parquet format",
   "author": "Hyperparam",
   "homepage": "https://hyperparam.app",
   "keywords": [
